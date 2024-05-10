@@ -73,6 +73,26 @@ export default class UserController {
       : response.send(user)
   }
 
+  async delete(request, response) {
+    const id = request.params.id
+
+    UserModel.findByIdAndDelete(id)
+      .then((user) => {
+        if (user) {
+          return response
+            .status(200)
+            .json({ success: true, message: 'the user is deleted!' })
+        } else {
+          return response
+            .status(404)
+            .json({ success: false, message: 'user not found!' })
+        }
+      })
+      .catch((err) => {
+        return response.status(500).json({ success: false, error: err })
+      })
+  }
+
   async login(request, response) {
     const userEmail = request.body.email
 
@@ -90,6 +110,7 @@ export default class UserController {
       const token = jwt.sign(
         {
           userId: user.id,
+          isAdmin: user.isAdmin,
         },
         jwtSecret,
         {
@@ -101,5 +122,52 @@ export default class UserController {
     } else {
       response.status(400).json({ message: 'Wrong credentials' })
     }
+  }
+
+  async register(request, response) {
+    const {
+      name,
+      email,
+      password,
+      phone,
+      isAdmin,
+      street,
+      apartment,
+      zip,
+      city,
+      country,
+    } = request.body
+
+    const newUser = new UserModel({
+      name,
+      email,
+      passwordHash: bcrypt.hashSync(
+        password,
+        parseInt(process.env.HASH_SECRET)
+      ),
+      phone,
+      isAdmin,
+      street,
+      apartment,
+      zip,
+      city,
+      country,
+    })
+
+    const user = await newUser.save()
+
+    !user
+      ? response.status(404).send('The user cannot be created')
+      : response.send(user)
+  }
+
+  async count(request, response) {
+    const userCount = await UserModel.countDocuments()
+
+    if (!userCount) {
+      response.status(500).json({ success: false })
+    }
+
+    response.status(200).json({ userCount: userCount })
   }
 }
