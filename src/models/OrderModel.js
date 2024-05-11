@@ -62,22 +62,22 @@ export default OrderModel
 /*
 Order Example:
 {
-  orderItems: [
+  "orderItems": [
     {
-      quantity: 3,
-      product: '5fcfc406ae79b0a6a90d2585',
+      "quantity": 3,
+      "product": "6638ac6c871ce76fea0498b5"
     },
     {
-      quantity: 2,
-      product: '5fd293c7d3abe7295b1403c4',
-    },
+      "quantity": 2,
+      "product": "6638af494a2ee58b6e2bd2f1"
+    }
   ],
-  shippingAddress1: 'Flowers Street , 45',
-  shippingAddress2: '1-B',
-  city: 'Prague',
-  zip: '00000',
-  country: 'Czech Republic',
-  phone: '+420702241333',
-  user: '5fd51bc7e39ba856244a3b44',
+  "shippingAddress1": "Flowers Street , 45",
+  "shippingAddress2": "1-B",
+  "city": "Prague",
+  "zip": "00000",
+  "country": "Czech Republic",
+  "phone": "+420702241333",
+  "user": "663ebedd2dbc063de6c4d29e"
 }
 */
