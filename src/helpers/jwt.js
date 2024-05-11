@@ -1,8 +1,9 @@
 import { expressjwt } from 'express-jwt'
 
-function authJwt() {
+export default function authJwt() {
   const secret = process.env.JWT_SECRET
   const api = process.env.API_URL
+
   return expressjwt({
     secret,
     algorithms: ['HS256'],
@@ -20,11 +21,7 @@ function authJwt() {
   })
 }
 
-async function isRevoked(request, payload, done) {
-  if (!payload.isAdmin) {
-    done(null, true)
-  }
-  done()
+async function isRevoked(request, jwt) {
+  const payload = jwt.payload
+  return !payload.isAdmin
 }
-
-export default authJwt
