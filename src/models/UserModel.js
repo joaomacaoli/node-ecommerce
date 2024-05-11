@@ -47,9 +47,7 @@ userSchema.virtual('id').get(function () {
   return this._id.toHexString()
 })
 
-userSchema.set('toJSON', {
-  virtuals: true,
-})
+userSchema.set('toJSON', { virtuals: true })
 
 const UserModel = model('User', userSchema)
 
