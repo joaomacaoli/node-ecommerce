@@ -94,17 +94,15 @@ export default class UserController {
   }
 
   async login(request, response) {
-    const userEmail = request.body.email
-
-    const user = await UserModel.findOne({ email: userEmail })
-
+    const { email } = request.body
+    const user = await UserModel.findOne({ email })
     if (!user)
       return response.status(400).json({ message: 'Wrong credentials' })
 
     const userPassword = request.body.password
     const userPasswordHash = user.passwordHash
     const comparePassword = bcrypt.compareSync(userPassword, userPasswordHash)
-    const jwtSecret = toString(process.env.JWT_TOKEN)
+    const secret = process.env.JWT_SECRET
 
     if (user && comparePassword) {
       const token = jwt.sign(
@@ -112,13 +110,11 @@ export default class UserController {
           userId: user.id,
           isAdmin: user.isAdmin,
         },
-        jwtSecret,
-        {
-          expiresIn: '1d',
-        }
+        secret,
+        { expiresIn: '1d' }
       )
 
-      response.status(200).json({ user: user.email, token })
+      response.status(200).json({ user: email, token })
     } else {
       response.status(400).json({ message: 'Wrong credentials' })
     }
