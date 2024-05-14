@@ -6,6 +6,8 @@ export default class OrderController {
 
   async read(request, response) {
     const orderList = await OrderModel.find()
+      .populate('user', 'name')
+      .sort({ dateOrdered: -1 })
 
     if (!orderList) {
       response.status(500).json({ success: false })
@@ -17,6 +19,14 @@ export default class OrderController {
   async readById(request, response) {
     const id = request.params.id
     const order = await OrderModel.findById(id)
+      .populate('user', 'name')
+      .populate({
+        path: 'orderItems',
+        populate: {
+          path: 'product',
+          populate: 'category',
+        },
+      })
 
     if (!order) {
       response
@@ -79,8 +89,11 @@ export default class OrderController {
     const id = request.params.id
 
     OrderModel.findByIdAndDelete(id)
-      .then((order) => {
+      .then(async (order) => {
         if (order) {
+          await order.orderItems.map(async (orderItem) => {
+            await OrderItemModel.findOneAndDelete(orderItem)
+          })
           return response
             .status(200)
             .json({ success: true, message: 'the order is deleted!' })
@@ -97,14 +110,12 @@ export default class OrderController {
 
   async update(request, response) {
     const id = request.params.id
-    const { name, icon, color } = request.body
+    const { status } = request.body
 
     const order = await OrderModel.findByIdAndUpdate(
       id,
       {
-        name,
-        icon,
-        color,
+        status,
       },
       { new: true }
     )
