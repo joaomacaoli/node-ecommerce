@@ -136,4 +136,51 @@ export default class OrderController {
       ? response.status(404).send('The order cannot be created')
       : response.send(order)
   }
+
+  async totalSales(request, response) {
+    const totalSales = await OrderModel.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalsales: {
+            $sum: '$totalPrice',
+          },
+        },
+      },
+    ])
+
+    if (!totalSales) {
+      return response.status(400).send('The order sales cannot be generated')
+    }
+
+    response.send({ totalsales: totalSales.pop().totalsales })
+  }
+
+  async count(request, response) {
+    const orderCount = await OrderModel.countDocuments((count) => count)
+
+    if (!orderCount) {
+      response.status(500).json({ success: false })
+    }
+    response.send({
+      orderCount: orderCount,
+    })
+  }
+
+  async usersOrders(request, response) {
+    const userOrderList = await OrderModel.find({ user: request.params.userid })
+      .populate({
+        path: 'orderItems',
+        populate: {
+          path: 'product',
+          populate: 'category',
+        },
+      })
+      .sort({ dateOrdered: -1 })
+
+    if (!userOrderList) {
+      response.status(500).json({ success: false })
+    }
+    response.send(userOrderList)
+  }
 }
